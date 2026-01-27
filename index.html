@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bahdinan | PUBG Tournament System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://cdn.discordapp.com/attachments/1162788746777870416/1354773714767446026/a52dafea8b7c430647e9713a44c0375e.png?ex=6979edd8&is=69789c58&hm=64b86ec9c988da31fbc08bc44d30cd2705ed5a65dae166233707585a0800c3c5');
+        body {
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            color: #f8fafc;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+        .custom-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            color: white;
+        }
+        .custom-input:focus {
+            border-color: #eab308;
+            outline: none;
+        }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+        <div class="glass-panel p-8 w-full max-w-md text-center border-yellow-500/30">
+            <h2 class="text-4xl font-bold text-yellow-500 mb-6 uppercase tracking-widest">Bahdinan Login</h2>
+            <div class="space-y-4">
+                <input type="text" placeholder="Admin Username" class="custom-input w-full p-4 rounded-xl">
+                <input type="password" placeholder="Password" class="custom-input w-full p-4 rounded-xl">
+                <button onclick="document.getElementById('authModal').remove()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold py-4 rounded-xl transition-all uppercase">
+                    Access Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <header class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center text-black shadow-lg shadow-yellow-500/20">
+                <i class="fa-solid fa-crosshairs text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-extrabold text-yellow-500 uppercase italic">Bahdinan</h1>
+                <p class="text-blue-400 tracking-widest text-xs font-bold uppercase">Point Management</p>
+            </div>
+        </div>
+        <div class="mt-6 md:mt-0 flex gap-3">
+            <button onclick="generateImage()" class="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-xl font-bold transition flex items-center gap-2">
+                <i class="fa-solid fa-image"></i> SAVE PHOTO
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <section class="space-y-6">
+            <div class="glass-panel p-6">
+                <h3 class="text-lg font-bold mb-4 text-yellow-500 uppercase italic">Add Competitor</h3>
+                <div class="space-y-3">
+                    <input id="teamNameInput" type="text" placeholder="Enter Team Name" class="custom-input w-full p-3 rounded-lg">
+                    <button onclick="addTeam()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-bold transition">
+                        ADD TEAM
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-lg font-bold mb-4 text-yellow-500 uppercase italic">Match Control</h3>
+                <button onclick="addNewGame()" class="w-full border border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-500 py-3 rounded-lg font-bold transition">
+                    + ADD NEW GAME COLUMN
+                </button>
+            </div>
+        </section>
+
+        <section class="lg:col-span-2">
+            <div class="glass-panel overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-black/40 text-yellow-500 text-sm uppercase">
+                            <tr id="tableHeader">
+                                <th class="p-4 border-b border-white/10">Rank</th>
+                                <th class="p-4 border-b border-white/10">Team Name</th>
+                                <th class="p-4 border-b border-white/10">Game 1</th>
+                                <th class="p-4 border-b border-white/10 text-white font-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="text-gray-300">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <canvas id="exportCanvas" style="display:none;"></canvas>
+
+    <script>
+        let teams = [];
+        let totalGames = 1;
+
+        function addTeam() {
+            const input = document.getElementById('teamNameInput');
+            if (!input.value) return alert("Please enter a name");
+
+            const newTeam = {
+                name: input.value,
+                scores: Array(totalGames).fill(0),
+                total: 0
+            };
+
+            teams.push(newTeam);
+            input.value = "";
+            updateUI();
+        }
+
+        function addNewGame() {
+            totalGames++;
+            teams.forEach(t => t.scores.push(0));
+
+            const header = document.getElementById('tableHeader');
+            const totalCol = header.lastElementChild;
+            const newTh = document.createElement('th');
+            newTh.className = "p-4 border-b border-white/10";
+            newTh.innerText = `Game ${totalGames}`;
+            header.insertBefore(newTh, totalCol);
+
+            updateUI();
+        }
+
+        function setScore(teamIdx, gameIdx, val) {
+            teams[teamIdx].scores[gameIdx] = parseInt(val) || 0;
+            updateUI(false); // Update numbers without re-sorting immediately for better typing
+        }
+
+        function updateUI(reSort = true) {
+            const tbody = document.getElementById('tableBody');
+            
+            // Calculate totals
+            teams.forEach(t => {
+                t.total = t.scores.reduce((a, b) => a + b, 0);
+            });
+
+            if (reSort) {
+                teams.sort((a, b) => b.total - a.total);
+            }
+
+            tbody.innerHTML = "";
+            teams.forEach((team, tIdx) => {
+                let row = `<tr class="border-b border-white/5">
+                    <td class="p-4 font-bold text-yellow-500">#${tIdx + 1}</td>
+                    <td class="p-4 font-bold text-white uppercase">${team.name}</td>`;
+                
+                team.scores.forEach((score, gIdx) => {
+                    row += `<td class="p-4">
+                        <input type="number" value="${score}" 
+                        oninput="setScore(${tIdx}, ${gIdx}, this.value)" 
+                        class="bg-gray-800 border border-gray-700 w-16 p-1 rounded text-center">
+                    </td>`;
+                });
+
+                row += `<td class="p-4 font-bold text-green-400 text-xl">${team.total}</td></tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function generateImage() {
+            const canvas = document.getElementById('exportCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1080;
+            canvas.height = 1350; // Instagram Portrait size
+
+            // Background
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Title
+            ctx.fillStyle = '#eab308';
+            ctx.font = 'italic bold 80px Arial';
+            ctx.fillText('BAHDINAN', 50, 120);
+            
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 30px Arial';
+            ctx.fillText('TOURNAMENT RESULTS', 50, 170);
+
+            // Table Headers
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(40, 220, 1000, 60);
+            ctx.fillStyle = '#eab308';
+            ctx.font = 'bold 25px Arial';
+            ctx.fillText('RANK', 60, 260);
+            ctx.fillText('TEAM NAME', 200, 260);
+            ctx.fillText('TOTAL POINTS', 800, 260);
+
+            // Team Rows
+            teams.forEach((team, i) => {
+                const y = 330 + (i * 60);
+                if (i % 2 === 0) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.03)';
+                    ctx.fillRect(40, y - 40, 1000, 60);
+                }
+                ctx.fillStyle = 'white';
+                ctx.font = '28px Arial';
+                ctx.fillText(`${i + 1}`, 70, y);
+                ctx.fillText(team.name.toUpperCase(), 200, y);
+                ctx.fillStyle = '#eab308';
+                ctx.font = 'bold 32px Arial';
+                ctx.fillText(team.total.toString(), 850, y);
+            });
+
+            // Branding
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.font = '20px Arial';
+            ctx.fillText('Generated by Bahdinan System', 400, 1320);
+
+            const link = document.createElement('a');
+            link.download = 'Bahdinan-Results.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bahdinan | PUBG Tournament System</title>
+    <title> بەهدینان | PUBG Result System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -59,7 +59,7 @@
         </div>
         <div class="mt-6 md:mt-0 flex gap-3">
             <button onclick="generateImage()" class="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-xl font-bold transition flex items-center gap-2">
-                <i class="fa-solid fa-image"></i> SAVE PHOTO
+                <i class="fa-solid fa-image"></i> سەیڤ کرنا ریسۆلتێ
             </button>
         </div>
     </header>
@@ -71,7 +71,7 @@
                 <div class="space-y-3">
                     <input id="teamNameInput" type="text" placeholder="Enter Team Name" class="custom-input w-full p-3 rounded-lg">
                     <button onclick="addTeam()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-bold transition">
-                        ADD TEAM
+                        تیما داخل کە
                     </button>
                 </div>
             </div>
@@ -79,7 +79,7 @@
             <div class="glass-panel p-6">
                 <h3 class="text-lg font-bold mb-4 text-yellow-500 uppercase italic">Match Control</h3>
                 <button onclick="addNewGame()" class="w-full border border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-500 py-3 rounded-lg font-bold transition">
-                    + ADD NEW GAME COLUMN
+                    گێمێ دیڤدا داخلکە
                 </button>
             </div>
         </section>
@@ -188,11 +188,11 @@
             // Title
             ctx.fillStyle = '#eab308';
             ctx.font = 'italic bold 80px Arial';
-            ctx.fillText('BAHDINAN', 50, 120);
+            ctx.fillText('بەهدینان', 50, 120);
             
             ctx.fillStyle = '#38bdf8';
             ctx.font = 'bold 30px Arial';
-            ctx.fillText('TOURNAMENT RESULTS', 50, 170);
+            ctx.fillText('SCRIM RESULTS', 50, 170);
 
             // Table Headers
             ctx.fillStyle = 'rgba(255,255,255,0.1)';
